@@ -75,6 +75,9 @@ const DeviceModal: FC<DeviceModalProps> = (props) => {
           data={devices}
           renderItem={renderDeviceModalListItem}
         />
+      <TouchableOpacity onPress={closeModal} style={modalStyle.ctaButton}>
+        <Text style={modalStyle.ctaButtonText}>Back</Text>
+      </TouchableOpacity>
       </SafeAreaView>
     </Modal>
   );

@@ -39,17 +39,17 @@ const App = () => {
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: color }]}>
-      <View style={styles.heartRateTitleWrapper}>
+      <View style={styles.titleWrapper}>
         {connectedDevice ? (
           <>
             <Text
-              style={[styles.heartRateTitleText, { backgroundColor: color }]}
+              style={[styles.titleText, { backgroundColor: color }]}
             >
               Connected
             </Text>
           </>
         ) : (
-          <Text style={styles.heartRateTitleText}>
+          <Text style={styles.titleText}>
             Please connect the Lightbulb
           </Text>
         )}
@@ -72,21 +72,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f2f2f2",
   },
-  heartRateTitleWrapper: {
+  titleWrapper: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
-  heartRateTitleText: {
+  titleText: {
     fontSize: 30,
     fontWeight: "bold",
     textAlign: "center",
     marginHorizontal: 20,
     color: "black",
-  },
-  heartRateText: {
-    fontSize: 25,
-    marginTop: 15,
   },
   ctaButton: {
     backgroundColor: "#FF6060",

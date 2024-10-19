@@ -86,6 +86,7 @@ function useBLE() {
         device && (device.name || device.localName)
       ) {
         setAllDevices((prevState: Device[]) => {
+          // console.log(prevState)
           if (!isDuplicteDevice(prevState, device)) {
             return [...prevState, device];
           }
