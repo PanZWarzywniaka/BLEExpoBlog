@@ -10,14 +10,22 @@ import DeviceModal from "./DeviceConnectionModal";
 import useBLE from "./useBLE";
 
 const App = () => {
-  const { allDevices, connectedDevice, connectToDevice, color } = useBLE();
+  const {
+    connectToDevice,
+    requestPermissions,
+    scanForPeripherals,
+    allDevices,
+    connectedDevice,
+    color,
+  } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const scanForDevices = async () => {
-    // const isPermissionsEnabled = await requestPermissions();
-    // if (isPermissionsEnabled) {
-    //   scanForPeripherals();
-    // }
+    const isPermissionsEnabled = await requestPermissions();
+    if (isPermissionsEnabled) {
+      console.log("Permissions enabled!");
+      scanForPeripherals();
+    }
   };
 
   const hideModal = () => {
@@ -42,7 +50,7 @@ const App = () => {
           </>
         ) : (
           <Text style={styles.heartRateTitleText}>
-            Please connect the Arduino
+            Please connect the Lightbulb
           </Text>
         )}
       </View>
