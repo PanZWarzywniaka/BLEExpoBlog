@@ -23,18 +23,12 @@ function useBLE() {
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [isPowered, setPower] = useState<Boolean | null>(null);
 
-  const onPowerChanged = (
-    error: BleError | null,
-    characteristic: Characteristic | null
-  ) => {
-    if (error) {
-      console.log(error);
-      return;
-    }
+  const readPowerData = (characteristic: Characteristic | null) => {
     if (!characteristic?.value) {
       console.log("No data received!");
       return;
     }
+
     const rawData = characteristic.value;
     const hexValue: string = base64ToHex(rawData);
     const intValue = parseInt(hexValue);
@@ -59,17 +53,32 @@ function useBLE() {
 
   const startStreamingData = async (device: Device) => {
     if (device) {
+      //power state
       device.monitorCharacteristicForService(
         SERVICE_UUID,
         POWER_UUID,
-        onPowerChanged
+        (error, characteristic) => {
+          error ? console.log(error) : readPowerData(characteristic);
+        }
       );
     } else {
       console.log("No device connected!");
     }
   };
 
-  // const getDevice = async (device: Device) => {};
+  const getDeviceState = async (device: Device) => {
+    console.log("Getting initial device state");
+    if (!device) {
+      console.log("No device connected!");
+      return;
+    }
+
+    const powerCharacteristic = await device.readCharacteristicForService(
+      SERVICE_UUID,
+      POWER_UUID
+    );
+    readPowerData(powerCharacteristic);
+  };
 
   // it's a callback then we tap on the device to connect
   const connectToDevice = async (device: Device) => {
@@ -79,8 +88,13 @@ function useBLE() {
       setConnectedDevice(deviceConnection);
       await deviceConnection.discoverAllServicesAndCharacteristics();
       bleManager.stopDeviceScan();
-      startStreamingData(deviceConnection);
       console.log("Connected!");
+
+      // get first time data
+      await getDeviceState(deviceConnection);
+
+      // subscribe to the changes
+      startStreamingData(deviceConnection);
     } catch (e) {
       console.log("FAILED TO CONNECT", e);
     }
