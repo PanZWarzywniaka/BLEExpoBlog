@@ -4,7 +4,8 @@ import { PermissionsAndroid, Platform } from "react-native";
 
 import * as ExpoDevice from "expo-device";
 
-import base64 from "react-native-base64";
+import { base64ToHex } from "./utils";
+
 import {
   BleError,
   BleManager,
@@ -35,16 +36,24 @@ function useBLE() {
       return;
     }
     const rawData = characteristic.value;
-
-    if (rawData == "AQ==") {
-      console.log("Light on!");
-      setPower(true);
-    } else if (rawData == "AA==") {
-      console.log("Light off!");
-      setPower(false);
-    } else {
-      setPower(null);
-      console.log(`got unknown state! value: ${rawData}`);
+    const hexValue: string = base64ToHex(rawData);
+    const intValue = parseInt(hexValue);
+    switch (intValue) {
+      case 0: {
+        console.log("Light off!");
+        setPower(false);
+        break;
+      }
+      case 1: {
+        console.log("Light on!");
+        setPower(true);
+        break;
+      }
+      default: {
+        setPower(null);
+        console.log(`got unknown state! value: ${intValue}`);
+        break;
+      }
     }
   };
 
@@ -59,6 +68,8 @@ function useBLE() {
       console.log("No device connected!");
     }
   };
+
+  // const getDevice = async (device: Device) => {};
 
   // it's a callback then we tap on the device to connect
   const connectToDevice = async (device: Device) => {
