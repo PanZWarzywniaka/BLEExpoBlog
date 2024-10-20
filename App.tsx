@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
   View,
@@ -16,7 +17,7 @@ const App = () => {
     scanForPeripherals,
     allDevices,
     connectedDevice,
-    color,
+    isPowered,
   } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
@@ -38,20 +39,20 @@ const App = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: color }]}>
+    <SafeAreaView style={[styles.container, { backgroundColor: "white" }]}>
       <View style={styles.titleWrapper}>
         {connectedDevice ? (
           <>
-            <Text
-              style={[styles.titleText, { backgroundColor: color }]}
-            >
-              Connected
+            <Text style={[styles.titleText, { backgroundColor: "white" }]}>
+              Connected ✅
             </Text>
+            <Switch
+              // onValueChange={toggleSwitch}
+              value={isPowered}
+            />
           </>
         ) : (
-          <Text style={styles.titleText}>
-            Please connect the Lightbulb
-          </Text>
+          <Text style={styles.titleText}>Please connect the Lightbulb</Text>
         )}
       </View>
       <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
