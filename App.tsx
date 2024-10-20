@@ -18,6 +18,7 @@ const App = () => {
     availableDevices,
     connectedDevice,
     isPowered,
+    writePowerData,
   } = useBLE();
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -40,6 +41,11 @@ const App = () => {
     setIsModalVisible(true);
   };
 
+  const togglePower = async () => {
+    const newState = !isPowered;
+    await writePowerData(newState);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.titleWrapper}>
@@ -49,7 +55,7 @@ const App = () => {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Text style={styles.menuText}>Power:</Text>
               <Switch
-                // onValueChange={toggleSwitch}
+                onValueChange={togglePower}
                 value={isPowered as boolean}
               />
             </View>

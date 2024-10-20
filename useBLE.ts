@@ -4,7 +4,7 @@ import { PermissionsAndroid, Platform } from "react-native";
 
 import * as ExpoDevice from "expo-device";
 
-import { base64ToHex } from "./utils";
+import { base64ToHex, hexToBase64 } from "./utils";
 
 import {
   BleError,
@@ -22,6 +22,27 @@ function useBLE() {
   const [availableDevices, setAvailableDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [isPowered, setPower] = useState<Boolean | null>(null);
+
+  const writePowerData = async (powerOn: Boolean) => {
+    console.log(`Writing power state to bulb. powerOn: ${powerOn}`);
+    if (!connectedDevice) {
+      console.log("Writing attempt fail, there is no connectedDevice!");
+      return;
+    }
+
+    const hexValue = powerOn ? "0x01" : "0x00";
+    const b64Value = hexToBase64(hexValue);
+
+    try {
+      await connectedDevice.writeCharacteristicWithoutResponseForService(
+        SERVICE_UUID,
+        POWER_UUID,
+        b64Value
+      );
+    } catch (error) {
+      console.log("Error sending data to the device", error);
+    }
+  };
 
   const readPowerData = (characteristic: Characteristic | null) => {
     if (!characteristic?.value) {
@@ -183,6 +204,7 @@ function useBLE() {
     availableDevices,
     connectedDevice,
     isPowered,
+    writePowerData,
   };
 }
 
