@@ -19,10 +19,12 @@ const App = () => {
     connectedDevice,
     isPowered,
   } = useBLE();
+
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
 
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
+    console.log("Scanning for devices...");
     if (isPermissionsEnabled) {
       console.log("Permissions enabled!");
       scanForPeripherals();
@@ -39,25 +41,28 @@ const App = () => {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: "white" }]}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.titleWrapper}>
         {connectedDevice ? (
           <>
-            <Text style={[styles.titleText, { backgroundColor: "white" }]}>
-              Connected ✅
-            </Text>
-            <Switch
-              // onValueChange={toggleSwitch}
-              value={isPowered as boolean}
-            />
+            <Text style={styles.titleText}>Connected ✅</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Text style={styles.menuText}>Power:</Text>
+              <Switch
+                // onValueChange={toggleSwitch}
+                value={isPowered as boolean}
+              />
+            </View>
           </>
         ) : (
           <Text style={styles.titleText}>Please connect the Lightbulb</Text>
         )}
       </View>
+
       <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
         <Text style={styles.ctaButtonText}>Connect</Text>
       </TouchableOpacity>
+
       <DeviceModal
         closeModal={hideModal}
         visible={isModalVisible}
@@ -81,6 +86,12 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: 30,
     fontWeight: "bold",
+    textAlign: "center",
+    marginHorizontal: 20,
+    color: "black",
+  },
+  menuText: {
+    fontSize: 30,
     textAlign: "center",
     marginHorizontal: 20,
     color: "black",
