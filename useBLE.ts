@@ -8,15 +8,26 @@ import base64 from "react-native-base64";
 import { BleManager, Device } from "react-native-ble-plx";
 
 
-const bleManager = new BleManager();
-
-
 function useBLE() {
+  const bleManager = useMemo(() => new BleManager(), []);
+
   const [allDevices, setAllDevices] = useState<Device[]>([]);
-  const [connectedDevice, setConnectedDevice] = useState(null);
+  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [color, setColor] = useState("white");
   
-  const connectToDevice = () => {};
+  const connectToDevice = async (device: Device) => {
+    try {
+      console.log(`Connecting to ${device.name ?? device.localName}...`);
+      const deviceConnection = await bleManager.connectToDevice(device.id);
+      setConnectedDevice(deviceConnection);
+      await deviceConnection.discoverAllServicesAndCharacteristics();
+      bleManager.stopDeviceScan();
+      // startStreamingData(deviceConnection);
+      console.log("Connected!")
+    } catch (e) {
+      console.log("FAILED TO CONNECT", e);
+    }
+  };
   
   const requestAndroid31Permissions = async () => {
     const bluetoothScanPermission = await PermissionsAndroid.request(
