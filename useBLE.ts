@@ -15,6 +15,7 @@ import {
 
 const SERVICE_UUID = "932c32bd-0000-47a2-835a-a8d455b859dd";
 const POWER_UUID = "932c32bd-0002-47a2-835a-a8d455b859dd";
+const BRIGHTNESS_UUID = "932c32bd-0003-47a2-835a-a8d455b859dd";
 
 function useBLE() {
   const bleManager = useMemo(() => new BleManager(), []);
@@ -22,6 +23,29 @@ function useBLE() {
   const [availableDevices, setAvailableDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [isPowered, setPower] = useState<Boolean | null>(null);
+  const [brightness, setBrightness] = useState<number>(-1);
+
+  const writeBrightnessData = async (newValue: Number) => {
+    console.log(`Writing brightness state to bulb. newValue: ${newValue}`);
+    if (!connectedDevice) {
+      console.log("Writing attempt fail, there is no connectedDevice!");
+      return;
+    }
+
+    const hexValue = newValue.toString(16);
+    const b64Value = hexToBase64(hexValue);
+    console.log(`New hexvalue ${hexValue}`);
+
+    try {
+      await connectedDevice.writeCharacteristicWithoutResponseForService(
+        SERVICE_UUID,
+        BRIGHTNESS_UUID,
+        b64Value
+      );
+    } catch (error) {
+      console.log("Error sending data to the device", error);
+    }
+  };
 
   const writePowerData = async (powerOn: Boolean) => {
     console.log(`Writing power state to bulb. powerOn: ${powerOn}`);
@@ -72,6 +96,18 @@ function useBLE() {
     }
   };
 
+  const readBrightnessData = async (characteristic: Characteristic | null) => {
+    if (!characteristic?.value) {
+      console.log("No data received!");
+      return;
+    }
+    const rawData = characteristic.value;
+    const hexValue: string = base64ToHex(rawData);
+    const intValue = parseInt(hexValue);
+    console.log(`Brightness intValue: ${intValue}`);
+    setBrightness(intValue);
+  };
+
   const startStreamingData = async (device: Device) => {
     if (device) {
       //power state
@@ -80,6 +116,14 @@ function useBLE() {
         POWER_UUID,
         (error, characteristic) => {
           error ? console.log(error) : readPowerData(characteristic);
+        }
+      );
+      //brightness state
+      device.monitorCharacteristicForService(
+        SERVICE_UUID,
+        BRIGHTNESS_UUID,
+        (error, characteristic) => {
+          error ? console.log(error) : readBrightnessData(characteristic);
         }
       );
     } else {
@@ -99,6 +143,12 @@ function useBLE() {
       POWER_UUID
     );
     readPowerData(powerCharacteristic);
+
+    const brightnessCharacteristic = await device.readCharacteristicForService(
+      SERVICE_UUID,
+      BRIGHTNESS_UUID
+    );
+    readBrightnessData(brightnessCharacteristic);
   };
 
   // it's a callback then we tap on the device to connect
@@ -107,6 +157,13 @@ function useBLE() {
       console.log(`Connecting to ${device.name ?? device.localName}...`);
       const deviceConnection = await bleManager.connectToDevice(device.id);
       setConnectedDevice(deviceConnection);
+
+      deviceConnection.onDisconnected((error, device) => {
+        console.log("Device disconnected!");
+        setConnectedDevice(null);
+        if (error) console.log(error);
+      });
+
       await deviceConnection.discoverAllServicesAndCharacteristics();
       bleManager.stopDeviceScan();
       console.log("Connected!");
@@ -205,6 +262,8 @@ function useBLE() {
     connectedDevice,
     isPowered,
     writePowerData,
+    brightness,
+    writeBrightnessData,
   };
 }
 

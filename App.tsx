@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import Slider from "@react-native-community/slider";
+
 import DeviceModal from "./DeviceConnectionModal";
 import useBLE from "./useBLE";
 
@@ -19,6 +21,8 @@ const App = () => {
     connectedDevice,
     isPowered,
     writePowerData,
+    brightness,
+    writeBrightnessData,
   } = useBLE();
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -46,17 +50,40 @@ const App = () => {
     await writePowerData(newState);
   };
 
+  const onBrightnessChange = async (new_value: number) => {
+    writeBrightnessData(new_value);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.titleWrapper}>
         {connectedDevice ? (
           <>
             <Text style={styles.titleText}>Connected ✅</Text>
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <View style={styles.menuItem}>
               <Text style={styles.menuText}>Power:</Text>
               <Switch
                 onValueChange={togglePower}
                 value={isPowered as boolean}
+              />
+            </View>
+            <View style={styles.menuItem}>
+              <Text style={styles.menuText}>Brightness:</Text>
+              <Slider
+                style={{ width: 200, height: 40 }}
+                value={brightness}
+                minimumValue={0}
+                maximumValue={255}
+                step={10}
+                onValueChange={onBrightnessChange}
+              />
+            </View>
+            <View style={styles.menuItem}>
+              <Text style={styles.menuText}>Temperature:</Text>
+              <Slider
+                style={{ width: 200, height: 40 }}
+                minimumValue={0}
+                maximumValue={100}
               />
             </View>
           </>
@@ -95,6 +122,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginHorizontal: 20,
     color: "black",
+  },
+  menuItem: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   menuText: {
     fontSize: 30,
