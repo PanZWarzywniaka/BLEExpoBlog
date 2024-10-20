@@ -18,7 +18,7 @@ const POWER_UUID = "932c32bd-0002-47a2-835a-a8d455b859dd";
 function useBLE() {
   const bleManager = useMemo(() => new BleManager(), []);
 
-  const [allDevices, setAllDevices] = useState<Device[]>([]);
+  const [availableDevices, setAvailableDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [isPowered, setPower] = useState<Boolean | null>(null);
 
@@ -141,7 +141,7 @@ function useBLE() {
       }
 
       if (device && (device.name || device.localName)) {
-        setAllDevices((prevState: Device[]) => {
+        setAvailableDevices((prevState: Device[]) => {
           // console.log(prevState)
           if (!isDuplicteDevice(prevState, device)) {
             return [...prevState, device];
@@ -155,7 +155,7 @@ function useBLE() {
     connectToDevice,
     requestPermissions,
     scanForPeripherals,
-    allDevices,
+    availableDevices,
     connectedDevice,
     isPowered,
   };

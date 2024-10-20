@@ -15,7 +15,7 @@ const App = () => {
     connectToDevice,
     requestPermissions,
     scanForPeripherals,
-    allDevices,
+    availableDevices,
     connectedDevice,
     isPowered,
   } = useBLE();
@@ -48,7 +48,7 @@ const App = () => {
             </Text>
             <Switch
               // onValueChange={toggleSwitch}
-              value={isPowered}
+              value={isPowered as boolean}
             />
           </>
         ) : (
@@ -62,7 +62,7 @@ const App = () => {
         closeModal={hideModal}
         visible={isModalVisible}
         connectToPeripheral={connectToDevice}
-        devices={allDevices}
+        devices={availableDevices}
       />
     </SafeAreaView>
   );
