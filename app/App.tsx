@@ -10,7 +10,7 @@ import {
 import Slider from "@react-native-community/slider";
 
 import DeviceModal from "./DeviceConnectionModal";
-import useBLE from "./useBLE";
+import useBLE from "../useBLE";
 
 const App = () => {
   const {
@@ -19,6 +19,7 @@ const App = () => {
     scanForPeripherals,
     availableDevices,
     connectedDevice,
+    // states
     isPowered,
     writePowerData,
     brightness,
