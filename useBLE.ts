@@ -23,7 +23,7 @@ function useBLE() {
 
   const [availableDevices, setAvailableDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-  const [isPowered, setPower] = useState<Boolean | null>(null);
+  const [isPowered, setPower] = useState<boolean>(false);
   const [brightness, setBrightness] = useState<number>(-1);
   const [temperature, setTemperature] = useState<number>(-1);
 
@@ -31,7 +31,7 @@ function useBLE() {
     newValue: Number,
     characteristicUUID: string
   ) => {
-    console.log(`Writing brightness state to bulb. newValue: ${newValue}`);
+    console.log(`Writing state to bulb: ${newValue}`);
     if (!connectedDevice) {
       console.log("Writing attempt fail, there is no connectedDevice!");
       return;
@@ -51,74 +51,30 @@ function useBLE() {
     }
   };
 
+  const readCharacteristic = (
+    characteristic: Characteristic | undefined
+  ): number | undefined => {
+    if (!characteristic?.value) {
+      console.log("No data received!");
+      return;
+    }
+    const rawData = characteristic.value;
+    const hexValue: string = base64ToHex(rawData);
+    const intValue = parseInt(hexValue);
+    return intValue;
+  };
+
   const writeBrightnessData = async (newValue: Number) => {
     const characteristic = await writeIntToDevice(newValue, BRIGHTNESS_UUID);
-    await readBrightnessData(characteristic);
+    const value = readCharacteristic(characteristic);
+    setBrightness(value ?? -1);
   };
 
   const writePowerData = async (powerOn: Boolean) => {
-    console.log(`Writing power state to bulb. powerOn: ${powerOn}`);
-    if (!connectedDevice) {
-      console.log("Writing attempt fail, there is no connectedDevice!");
-      return;
-    }
-
-    const hexValue = powerOn ? "0x01" : "0x00";
-    const b64Value = hexToBase64(hexValue);
-
-    try {
-      const characteristic =
-        await connectedDevice.writeCharacteristicWithResponseForService(
-          SERVICE_UUID,
-          POWER_UUID,
-          b64Value
-        );
-      readPowerData(characteristic);
-    } catch (error) {
-      console.log("Error sending data to the device", error);
-    }
-  };
-
-  const readPowerData = (characteristic: Characteristic | undefined) => {
-    if (!characteristic?.value) {
-      console.log("No data received!");
-      return;
-    }
-
-    const rawData = characteristic.value;
-    const hexValue: string = base64ToHex(rawData);
-    const intValue = parseInt(hexValue);
-    switch (intValue) {
-      case 0: {
-        console.log("Light off!");
-        setPower(false);
-        break;
-      }
-      case 1: {
-        console.log("Light on!");
-        setPower(true);
-        break;
-      }
-      default: {
-        setPower(null);
-        console.log(`got unknown state! value: ${intValue}`);
-        break;
-      }
-    }
-  };
-
-  const readBrightnessData = async (
-    characteristic: Characteristic | undefined
-  ) => {
-    if (!characteristic?.value) {
-      console.log("No data received!");
-      return;
-    }
-    const rawData = characteristic.value;
-    const hexValue: string = base64ToHex(rawData);
-    const intValue = parseInt(hexValue);
-    console.log(`Brightness intValue: ${intValue}`);
-    setBrightness(intValue);
+    const newValue = Number(powerOn);
+    const characteristic = await writeIntToDevice(newValue, POWER_UUID);
+    const intValue = readCharacteristic(characteristic);
+    setPower(Boolean(intValue));
   };
 
   const getDeviceState = async (device: Device) => {
@@ -132,13 +88,15 @@ function useBLE() {
       SERVICE_UUID,
       POWER_UUID
     );
-    readPowerData(powerCharacteristic);
+    const intValue = readCharacteristic(powerCharacteristic);
+    setPower(Boolean(intValue));
 
     const brightnessCharacteristic = await device.readCharacteristicForService(
       SERVICE_UUID,
       BRIGHTNESS_UUID
     );
-    readBrightnessData(brightnessCharacteristic);
+    const value = readCharacteristic(brightnessCharacteristic);
+    setBrightness(value ?? -1);
   };
 
   // it's a callback then we tap on the device to connect

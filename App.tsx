@@ -62,10 +62,7 @@ const App = () => {
             <Text style={styles.titleText}>Connected ✅</Text>
             <View style={styles.menuItem}>
               <Text style={styles.menuText}>Power</Text>
-              <Switch
-                onValueChange={togglePower}
-                value={isPowered as boolean}
-              />
+              <Switch onValueChange={togglePower} value={isPowered} />
             </View>
             <View style={styles.menuItem}>
               <Text style={styles.menuText}>Brightness</Text>
