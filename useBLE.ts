@@ -16,6 +16,7 @@ import {
 const SERVICE_UUID = "932c32bd-0000-47a2-835a-a8d455b859dd";
 const POWER_UUID = "932c32bd-0002-47a2-835a-a8d455b859dd";
 const BRIGHTNESS_UUID = "932c32bd-0003-47a2-835a-a8d455b859dd";
+const TEMPERATURE_UUID = "932c32bd-0004-47a2-835a-a8d455b859dd";
 
 function useBLE() {
   const bleManager = useMemo(() => new BleManager(), []);
@@ -24,8 +25,12 @@ function useBLE() {
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [isPowered, setPower] = useState<Boolean | null>(null);
   const [brightness, setBrightness] = useState<number>(-1);
+  const [temperature, setTemperature] = useState<number>(-1);
 
-  const writeBrightnessData = async (newValue: Number) => {
+  const writeIntToDevice = async (
+    newValue: Number,
+    characteristicUUID: string
+  ) => {
     console.log(`Writing brightness state to bulb. newValue: ${newValue}`);
     if (!connectedDevice) {
       console.log("Writing attempt fail, there is no connectedDevice!");
@@ -34,19 +39,21 @@ function useBLE() {
 
     const hexValue = newValue.toString(16);
     const b64Value = hexToBase64(hexValue);
-    console.log(`New hexvalue ${hexValue}`);
 
     try {
-      const characteristic =
-        await connectedDevice.writeCharacteristicWithoutResponseForService(
-          SERVICE_UUID,
-          BRIGHTNESS_UUID,
-          b64Value
-        );
-      readBrightnessData(characteristic);
+      return await connectedDevice.writeCharacteristicWithoutResponseForService(
+        SERVICE_UUID,
+        characteristicUUID,
+        b64Value
+      );
     } catch (error) {
       console.log("Error sending data to the device", error);
     }
+  };
+
+  const writeBrightnessData = async (newValue: Number) => {
+    const characteristic = await writeIntToDevice(newValue, BRIGHTNESS_UUID);
+    await readBrightnessData(characteristic);
   };
 
   const writePowerData = async (powerOn: Boolean) => {
@@ -72,7 +79,7 @@ function useBLE() {
     }
   };
 
-  const readPowerData = (characteristic: Characteristic | null) => {
+  const readPowerData = (characteristic: Characteristic | undefined) => {
     if (!characteristic?.value) {
       console.log("No data received!");
       return;
@@ -100,7 +107,9 @@ function useBLE() {
     }
   };
 
-  const readBrightnessData = async (characteristic: Characteristic | null) => {
+  const readBrightnessData = async (
+    characteristic: Characteristic | undefined
+  ) => {
     if (!characteristic?.value) {
       console.log("No data received!");
       return;

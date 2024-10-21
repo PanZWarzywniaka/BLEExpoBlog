@@ -61,14 +61,14 @@ const App = () => {
           <>
             <Text style={styles.titleText}>Connected ✅</Text>
             <View style={styles.menuItem}>
-              <Text style={styles.menuText}>Power:</Text>
+              <Text style={styles.menuText}>Power</Text>
               <Switch
                 onValueChange={togglePower}
                 value={isPowered as boolean}
               />
             </View>
             <View style={styles.menuItem}>
-              <Text style={styles.menuText}>Brightness:</Text>
+              <Text style={styles.menuText}>Brightness</Text>
               <Slider
                 style={{ width: 200, height: 40 }}
                 value={brightness}
@@ -79,11 +79,12 @@ const App = () => {
               />
             </View>
             <View style={styles.menuItem}>
-              <Text style={styles.menuText}>Temperature:</Text>
+              <Text style={styles.menuText}>Temperature</Text>
               <Slider
                 style={{ width: 200, height: 40 }}
-                minimumValue={0}
-                maximumValue={100}
+                minimumValue={153}
+                maximumValue={500}
+                step={20}
               />
             </View>
           </>
