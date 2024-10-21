@@ -37,11 +37,13 @@ function useBLE() {
     console.log(`New hexvalue ${hexValue}`);
 
     try {
-      await connectedDevice.writeCharacteristicWithoutResponseForService(
-        SERVICE_UUID,
-        BRIGHTNESS_UUID,
-        b64Value
-      );
+      const characteristic =
+        await connectedDevice.writeCharacteristicWithoutResponseForService(
+          SERVICE_UUID,
+          BRIGHTNESS_UUID,
+          b64Value
+        );
+      readBrightnessData(characteristic);
     } catch (error) {
       console.log("Error sending data to the device", error);
     }
@@ -58,11 +60,13 @@ function useBLE() {
     const b64Value = hexToBase64(hexValue);
 
     try {
-      await connectedDevice.writeCharacteristicWithoutResponseForService(
-        SERVICE_UUID,
-        POWER_UUID,
-        b64Value
-      );
+      const characteristic =
+        await connectedDevice.writeCharacteristicWithResponseForService(
+          SERVICE_UUID,
+          POWER_UUID,
+          b64Value
+        );
+      readPowerData(characteristic);
     } catch (error) {
       console.log("Error sending data to the device", error);
     }
@@ -108,29 +112,6 @@ function useBLE() {
     setBrightness(intValue);
   };
 
-  const startStreamingData = async (device: Device) => {
-    if (device) {
-      //power state
-      device.monitorCharacteristicForService(
-        SERVICE_UUID,
-        POWER_UUID,
-        (error, characteristic) => {
-          error ? console.log(error) : readPowerData(characteristic);
-        }
-      );
-      //brightness state
-      device.monitorCharacteristicForService(
-        SERVICE_UUID,
-        BRIGHTNESS_UUID,
-        (error, characteristic) => {
-          error ? console.log(error) : readBrightnessData(characteristic);
-        }
-      );
-    } else {
-      console.log("No device connected!");
-    }
-  };
-
   const getDeviceState = async (device: Device) => {
     console.log("Getting initial device state");
     if (!device) {
@@ -172,7 +153,7 @@ function useBLE() {
       await getDeviceState(deviceConnection);
 
       // subscribe to the changes
-      startStreamingData(deviceConnection);
+      // startStreamingData(deviceConnection);
     } catch (e) {
       console.log("FAILED TO CONNECT", e);
     }
