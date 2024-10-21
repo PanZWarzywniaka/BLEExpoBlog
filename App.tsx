@@ -23,6 +23,8 @@ const App = () => {
     writePowerData,
     brightness,
     writeBrightnessData,
+    temperature,
+    writeTemperatureData,
   } = useBLE();
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
@@ -50,10 +52,6 @@ const App = () => {
     await writePowerData(newState);
   };
 
-  const onBrightnessChange = async (new_value: number) => {
-    writeBrightnessData(new_value);
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.titleWrapper}>
@@ -72,16 +70,18 @@ const App = () => {
                 minimumValue={0}
                 maximumValue={255}
                 step={10}
-                onValueChange={onBrightnessChange}
+                onValueChange={writeBrightnessData}
               />
             </View>
             <View style={styles.menuItem}>
               <Text style={styles.menuText}>Temperature</Text>
               <Slider
                 style={{ width: 200, height: 40 }}
-                minimumValue={153}
+                value={temperature}
+                minimumValue={160}
                 maximumValue={500}
                 step={20}
+                onValueChange={writeTemperatureData}
               />
             </View>
           </>

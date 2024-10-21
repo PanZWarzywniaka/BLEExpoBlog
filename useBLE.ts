@@ -38,6 +38,7 @@ function useBLE() {
     }
 
     const hexValue = newValue.toString(16);
+    console.log(`Writing state to bulb: hex: ${hexValue}`);
     const b64Value = hexToBase64(hexValue);
 
     try {
@@ -64,10 +65,21 @@ function useBLE() {
     return intValue;
   };
 
-  const writeBrightnessData = async (newValue: Number) => {
+  const writeBrightnessData = async (newValue: number) => {
     const characteristic = await writeIntToDevice(newValue, BRIGHTNESS_UUID);
     const value = readCharacteristic(characteristic);
     setBrightness(value ?? -1);
+  };
+
+  const writeTemperatureData = async (newValue: number) => {
+    // TODO Implement this python code here
+    // temp = max(min(int(colour_temp), 500), 153)
+    // y = temp.to_bytes(2, "little")
+    return;
+    const characteristic = await writeIntToDevice(newValue, TEMPERATURE_UUID);
+    const value = readCharacteristic(characteristic);
+    console.log(`New temperature recieved: ${value}`);
+    setTemperature(newValue);
   };
 
   const writePowerData = async (powerOn: Boolean) => {
@@ -212,6 +224,8 @@ function useBLE() {
     writePowerData,
     brightness,
     writeBrightnessData,
+    temperature,
+    writeTemperatureData,
   };
 }
 
