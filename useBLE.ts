@@ -4,7 +4,7 @@ import { PermissionsAndroid, Platform } from "react-native";
 
 import * as ExpoDevice from "expo-device";
 
-import { base64ToHex, hexToBase64 } from "./utils";
+import { base64ToHex, hexToBase64 } from "./convertUtils";
 
 import {
   BleError,
